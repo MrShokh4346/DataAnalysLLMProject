@@ -1,0 +1,6 @@
+ollama
+pandas
+streamlit
+faker
+openpyxl
+xlsxwriter
