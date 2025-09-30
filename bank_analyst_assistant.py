@@ -1,18 +1,11 @@
 import sqlite3
 import random
-from anyio import sleep
 import pandas as pd
-from datetime import datetime, timedelta, date
+from datetime import datetime, date
 from faker import Faker
 import ollama
 import streamlit as st
 import os
-from xlsxwriter import Workbook
-
-import streamlit as st
-from datetime import datetime
-import ollama
-from libretranslatepy import LibreTranslateAPI
 
 # Initialize Faker for mock data
 fake = Faker('uz_UZ')  # Uzbek locale for names/regions
@@ -184,37 +177,6 @@ def generate_sql(query: str) -> str:
     except Exception as e:
         st.error(f"Failed to generate SQL: {str(e)}. Please ensure Ollama is running and the 'llama3' model is available.")
         return ""
-
-
-# from google.cloud import translate_v2 as translate
-# def generate_sql(query: str) -> tuple[str, str]:
-#     schema = get_schema()
-        
-#     sql_prompt = f"""
-#     You are a SQL expert for a bank database using SQLite. Schema:
-#     {schema}
-    
-#     Translate the following Uzbek natural language query to a valid SQLite SQL query. 
-#     Rules:
-#     - Use SQLite-compatible functions (e.g., strftime('%Y-%m', date) for year/month, strftime('%m', date) for month, not EXTRACT).
-#     - Use lowercase table names: transactions, accounts, clients.
-#     - Use table aliases: t for transactions, a for accounts, c for clients.
-#     - Use exact region values (e.g., 'Toshkent viloyati', 'Samarqand viloyati', 'Andijon viloyati', 'Buxoro viloyati').
-#     - Do NOT include ```sql, ```, or any markdown. Return only the plain SQL query text.
-#     - Ensure no leading/trailing spaces or newlines.
-#     Query: {query}
-#     """
-#     try:
-#         response = ollama.generate(model='llama3', prompt=sql_prompt)
-#         sql = response['response'].strip()
-#         if not sql:
-#             raise ValueError("Generated SQL is empty")
-#         print(f"Raw Ollama response: {response['response']}")
-#         print(f"Parsed SQL: {sql}")
-#         return sql
-#     except Exception as e:
-#         st.error(f"Failed to generate SQL: {str(e)}. Please ensure Ollama is running and the 'llama3' model is available.")
-#         return ""
     
 
 def execute_query(sql: str) -> pd.DataFrame:
@@ -290,48 +252,6 @@ def run_ui():
                     # st.error(f"Query execution failed: {str(e)}. Please check the SQL query for SQLite compatibility.")
         else:
             st.warning("Please enter a query.")
-
-# def run_ui():
-#     st.title("Bank Data Analyst Assistant")
-#     st.write("Enter your natural language query in Uzbek (e.g., '2024 yil iyun oyida Toshkent viloyati bo‘yicha jami tranzaksiyalar summasini ko‘rsat')")
-    
-#     user_query = st.text_input("Query:")
-    
-#     if st.button("Generate Report"):
-#         if user_query:
-#             with st.spinner("Generating SQL..."):
-#                 result = generate_sql(user_query)
-#                 if not isinstance(result, tuple) or len(result) != 2:
-#                     st.error("Invalid response from generate_sql. Please check Ollama setup.")
-#                     return
-#                 sql, english_query = result
-#                 if not sql or not isinstance(sql, str):
-#                     st.error("No valid SQL query generated. Please check Ollama setup or try a different query.")
-#                     return
-#                 st.write("English Translation:")
-#                 st.write(english_query)
-#                 st.write("Generated SQL:")
-#                 st.code(sql, language='sql')
-            
-#             with st.spinner("Executing query..."):
-#                 try:
-#                     df = execute_query(sql)
-#                     if df.empty:
-#                         st.warning("Query returned no results.")
-#                     else:
-#                         st.write("Results:")
-#                         st.dataframe(df)
-                        
-#                         filename = f"report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-#                         with st.spinner("Exporting to Excel..."):
-#                             export_to_excel(df, filename, 'bar')
-                        
-#                         with open(filename, 'rb') as f:
-#                             st.download_button("Download Excel Report", f.read(), file_name=filename)
-#                 except Exception as e:
-#                     st.error(f"Query execution failed: {str(e)}. Please check the SQL query for SQLite compatibility.")
-#         else:
-#             st.warning("Please enter a query.")
 
 if __name__ == "__main__":
     init_database()  # Run once
